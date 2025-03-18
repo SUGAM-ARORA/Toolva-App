@@ -8,7 +8,6 @@
     "scheme": "toolva",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -21,7 +20,6 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.toolva.mobile"
@@ -41,6 +39,7 @@
       "eas": {
         "projectId": "your-project-id"
       }
-    }
+    },
+    "newArchEnabled": true
   }
 }
