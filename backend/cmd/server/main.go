@@ -1,53 +1,60 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
 	"log"
-	"os"
+
+	"toolva/backend/internal/config"
+	"toolva/backend/internal/handlers"
+	"toolva/backend/internal/middleware"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
-	"github.com/toolva/backend/internal/config"
-	"github.com/toolva/backend/internal/handlers"
-	"github.com/toolva/backend/internal/middleware"
-	"github.com/toolva/backend/pkg/database"
+	_ "github.com/lib/pq"
 )
 
 func main() {
-	// Load environment variables
-	if err := godotenv.Load(); err != nil {
-		log.Printf("Warning: .env file not found")
-	}
-
-	// Initialize database
-	db, err := database.InitDB()
+	cfg, err := config.Load()
 	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
+		log.Fatal("Error loading config:", err)
 	}
 
-	// Initialize Redis
-	redis, err := database.InitRedis()
+	// Connect to database
+	connStr := fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName,
+	)
+	db, err := sql.Open("postgres", connStr)
 	if err != nil {
-		log.Fatalf("Failed to connect to Redis: %v", err)
+		log.Fatal("Error connecting to database:", err)
 	}
+	defer db.Close()
 
-	// Create Gin router
-	router := gin.Default()
+	// Initialize router
+	r := gin.Default()
 
-	// Add middleware
-	router.Use(middleware.CORS())
-	router.Use(middleware.Logger())
+	// Add CORS middleware
+	r.Use(func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+		c.Next()
+	})
 
-	// Initialize handlers
-	handlers.InitHandlers(router, db, redis)
+	// Add auth middleware
+	r.Use(middleware.Auth())
+
+	// Register routes
+	toolsHandler := handlers.NewToolsHandler(db)
+	toolsHandler.RegisterRoutes(r)
 
 	// Start server
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
+	log.Printf("Server starting on port %s", cfg.Port)
+	if err := r.Run(":" + cfg.Port); err != nil {
+		log.Fatal("Error starting server:", err)
 	}
-
-	log.Printf("Server starting on port %s", port)
-	if err := router.Run(":" + port); err != nil {
-		log.Fatalf("Failed to start server: %v", err)
-	}
-} 
+}

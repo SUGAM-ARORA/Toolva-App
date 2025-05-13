@@ -1,7 +1,7 @@
-import { View, Text, ScrollView, TouchableOpacity, Switch, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Switch, StyleSheet, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronRight, Moon, Bell, Shield, CircleHelp as HelpCircle, LogOut } from 'lucide-react-native';
-import { useState } from 'react';
+import { useTheme } from '../context/ThemeContext';
 
 const settingsSections = [
   {
@@ -14,58 +14,70 @@ const settingsSections = [
   {
     title: 'Account',
     items: [
-      { id: 'privacy', icon: Shield, label: 'Privacy Settings', type: 'link' },
-      { id: 'help', icon: HelpCircle, label: 'Help & Support', type: 'link' },
+      { id: 'privacy', icon: Shield, label: 'Privacy Settings', type: 'link', url: 'https://toolva.com/privacy' },
+      { id: 'help', icon: HelpCircle, label: 'Help & Support', type: 'link', url: 'https://toolva.com/support' },
       { id: 'logout', icon: LogOut, label: 'Log Out', type: 'button' },
     ],
   },
 ];
 
 export default function SettingsScreen() {
-  const [switches, setSwitches] = useState({
-    darkMode: true,
-    notifications: true,
-  });
+  const { theme, isDark, toggleTheme } = useTheme();
 
-  const toggleSwitch = (id: string) => {
-    setSwitches(prev => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
+  const handlePress = (item: any) => {
+    if (item.type === 'link' && item.url) {
+      Linking.openURL(item.url);
+    } else if (item.id === 'logout') {
+      // Implement logout logic
+      console.log('Logout pressed');
+    }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
-        <Text style={styles.title}>Settings</Text>
-        <Text style={styles.subtitle}>Customize your experience</Text>
+        <Text style={[styles.title, { color: theme.text }]}>Settings</Text>
+        <Text style={[styles.subtitle, { color: theme.textTertiary }]}>
+          Customize your experience
+        </Text>
       </View>
 
       <ScrollView style={styles.content}>
         {settingsSections.map((section) => (
           <View key={section.title} style={styles.section}>
-            <Text style={styles.sectionTitle}>{section.title}</Text>
-            <View style={styles.sectionContent}>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>
+              {section.title}
+            </Text>
+            <View style={[styles.sectionContent, { backgroundColor: theme.card }]}>
               {section.items.map((item) => {
                 const Icon = item.icon;
                 return (
                   <TouchableOpacity
                     key={item.id}
-                    style={styles.settingItem}
-                    onPress={() => item.type === 'switch' && toggleSwitch(item.id)}>
+                    style={[styles.settingItem, { borderBottomColor: theme.border }]}
+                    onPress={() => handlePress(item)}>
                     <View style={styles.settingItemLeft}>
-                      <Icon size={20} color="#64748b" />
-                      <Text style={styles.settingItemLabel}>{item.label}</Text>
+                      <Icon size={20} color={theme.textTertiary} />
+                      <Text style={[styles.settingItemLabel, { color: theme.text }]}>
+                        {item.label}
+                      </Text>
                     </View>
-                    {item.type === 'switch' ? (
+                    {item.id === 'darkMode' ? (
                       <Switch
-                        value={switches[item.id as keyof typeof switches]}
-                        onValueChange={() => toggleSwitch(item.id)}
-                        trackColor={{ false: '#1e293b', true: '#3b82f6' }}
-                        thumbColor={switches[item.id as keyof typeof switches] ? '#ffffff' : '#94a3b8'}
+                        value={isDark}
+                        onValueChange={toggleTheme}
+                        trackColor={{ false: theme.border, true: theme.primary }}
+                        thumbColor={isDark ? '#ffffff' : theme.textSecondary}
+                      />
+                    ) : item.type === 'switch' ? (
+                      <Switch
+                        value={false}
+                        onValueChange={() => {}}
+                        trackColor={{ false: theme.border, true: theme.primary }}
+                        thumbColor={theme.textSecondary}
                       />
                     ) : item.type === 'link' ? (
-                      <ChevronRight size={20} color="#64748b" />
+                      <ChevronRight size={20} color={theme.textTertiary} />
                     ) : null}
                   </TouchableOpacity>
                 );
@@ -75,9 +87,12 @@ export default function SettingsScreen() {
         ))}
 
         <View style={styles.info}>
-          <Text style={styles.version}>Version 1.0.0</Text>
-          
-          <Text style={styles.copyright}>© 2024 Toolva. All rights reserved.</Text>
+          <Text style={[styles.version, { color: theme.textTertiary }]}>
+            Version 1.0.0
+          </Text>
+          <Text style={[styles.copyright, { color: theme.textTertiary }]}>
+            © 2024 Toolva. All rights reserved.
+          </Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -87,7 +102,6 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0f172a',
   },
   header: {
     padding: 20,
@@ -95,12 +109,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#ffffff',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#64748b',
   },
   content: {
     flex: 1,
@@ -112,11 +124,9 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#ffffff',
     marginBottom: 16,
   },
   sectionContent: {
-    backgroundColor: '#1e293b',
     borderRadius: 16,
     overflow: 'hidden',
   },
@@ -126,7 +136,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#2d3748',
   },
   settingItemLeft: {
     flexDirection: 'row',
@@ -134,7 +143,6 @@ const styles = StyleSheet.create({
   },
   settingItemLabel: {
     fontSize: 16,
-    color: '#ffffff',
     marginLeft: 12,
   },
   info: {
@@ -143,11 +151,9 @@ const styles = StyleSheet.create({
   },
   version: {
     fontSize: 14,
-    color: '#64748b',
     marginBottom: 4,
   },
   copyright: {
     fontSize: 12,
-    color: '#475569',
   },
 });

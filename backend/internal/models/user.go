@@ -4,6 +4,15 @@ import (
 	"time"
 
 	"gorm.io/gorm"
+	"errors"
+	"golang.org/x/crypto/bcrypt"
+)
+
+var (
+	ErrInvalidEmail      = errors.New("invalid email")
+	ErrInvalidPassword   = errors.New("invalid password")
+	ErrInvalidFirstName  = errors.New("invalid first name")
+	ErrInvalidLastName   = errors.New("invalid last name")
 )
 
 type User struct {
@@ -23,11 +32,11 @@ type User struct {
 // BeforeCreate is a GORM hook that runs before creating a new user
 func (u *User) BeforeCreate(tx *gorm.DB) error {
 	// Hash password before saving
-	hashedPassword, err := HashPassword(u.Password)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
-	u.Password = hashedPassword
+	u.Password = string(hashedPassword)
 	return nil
 }
 

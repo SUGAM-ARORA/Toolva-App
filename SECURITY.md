@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-We release patches for security vulnerabilities. Here are the versions that are currently being supported with security updates.
+Use this section to tell people about which versions of your project are currently being supported with security updates.
 
 | Version | Supported          |
 | ------- | ------------------ |
@@ -10,41 +10,30 @@ We release patches for security vulnerabilities. Here are the versions that are 
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability within this project, please send an email to [security contact email]. All security vulnerabilities will be promptly addressed.
+We take the security of Toolva Mobile seriously. If you believe you have found a security vulnerability, please report it to us as described below.
 
-Please do not disclose security-related issues publicly until a fix has been announced.
+**Please do not report security vulnerabilities through public GitHub issues.**
 
-## Security Best Practices
+Instead, please report them via email to security@toolva.com
 
-1. **Dependencies**
-   - Keep all dependencies up to date
-   - Regularly run `npm audit` to check for vulnerabilities
-   - Use `npm audit fix` to automatically fix vulnerabilities where possible
+You should receive a response within 48 hours. If for some reason you do not, please follow up via email to ensure we received your original message.
 
-2. **API Keys and Secrets**
-   - Never commit API keys or secrets to the repository
-   - Use environment variables for sensitive data
-   - Follow the `.env.example` template for environment variables
+Please include the requested information listed below (as much as you can provide) to help us better understand the nature and scope of the possible issue:
 
-3. **Code Security**
-   - Follow secure coding practices
-   - Implement proper input validation
-   - Use HTTPS for all API calls
-   - Implement proper authentication and authorization
+* Type of issue (e.g. buffer overflow, SQL injection, cross-site scripting, etc.)
+* Full paths of source file(s) related to the manifestation of the issue
+* The location of the affected source code (tag/branch/commit or direct URL)
+* Any special configuration required to reproduce the issue
+* Step-by-step instructions to reproduce the issue
+* Proof-of-concept or exploit code (if possible)
+* Impact of the issue, including how an attacker might exploit it
 
-4. **Data Storage**
-   - Use secure storage methods for sensitive data
-   - Implement proper data encryption
-   - Follow data protection regulations
+This information will help us triage your report more quickly.
 
-## Security Measures
+## Preferred Languages
 
-- Regular security audits
-- Dependency vulnerability scanning
-- Code security reviews
-- Secure deployment practices
+We prefer all communications to be in English.
 
-## Contact
+## Policy
 
-For security-related queries or to report vulnerabilities, please contact:
-[security contact email] 
+Toolva Mobile follows the principle of [Responsible Disclosure](https://en.wikipedia.org/wiki/Responsible_disclosure).
